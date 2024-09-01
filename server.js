@@ -8,6 +8,7 @@ import connectDB from "./config/db.js";
 
 
 import authRoutes from "./routes/authRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/search",searchRoutes)
 
 const PORT = process.env.PORT || 8080;
 
