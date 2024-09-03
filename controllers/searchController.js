@@ -15,14 +15,14 @@ export const searchGPT = async (req, res, next) => {
         {
           role: "system",
           content:
-            "You are an AI trained to extract specific keywords from sentences.",
+            "You are an AI trained to extract specific keywords and correct the spellings if they are wrong from sentences and return them in a valid JSON object.",
         },
         {
           role: "user",
-          content: `Extract the following keywords from this sentence: location, job title, experience year, gender, skills. The sentence is: '${sentence}'. Provide the extracted information in the following format: location: [location], job title: [job title], experience year: [experience year], skills: [skills] gender: [gender].`,
+          content: `Extract the following information from this sentence: location, degree, job title (include all related job titles), experience year(if string convert to number), gender, and skills. For the job title, include the primary job title and a list of all related job titles that could be associated with it. For example, if the sentence mentions "Backend Developer," related job titles might include "Backend Engineer," "Software Developer," "Full Stack Developer," etc. The sentence is: '${sentence}'. Provide the extracted information as a JSON object in the following format: {"location": [location], "job titles": [primary job title, related job title1, related job title2, ...], "education": [degree], "experience year": [experience year], "skills": [skills], "gender": [gender]}. Please include all relevant related job titles in the array and no other text.`,
         },
       ],
-      max_tokens: 50,
+      max_tokens: 100, // Increased token limit to ensure longer responses
       temperature: 0.3,
     });
 
