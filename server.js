@@ -11,6 +11,7 @@ import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
+import candidateRoutes from "./routes/candidateRoutes.js"
 
 
 const { LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, LINKEDIN_REDIRECT_URI } = process.env;
@@ -25,11 +26,10 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/search",searchRoutes)
+app.use("/api/v1/search",searchRoutes);
+app.use("/api/v1/candidate",candidateRoutes)
 
 const PORT = process.env.PORT || 800;
-
-
 
 // listen
 app.listen(PORT, () => {

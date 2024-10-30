@@ -95,3 +95,90 @@ export const getUserSearches = async (req, res) => {
   }
 };
 
+
+export const updateShortlist = async (req, res) => {
+  try {
+    const { searchId } = req.params; // The search ID from the request params
+    const { candidate } = req.body; // Candidate details from the request body
+    const userId = req.user.userId; // Extracted userId from the auth middleware
+
+    // Find the user by userId
+    const user = await usermodel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find the specific search within the user's searches array by searchId
+    const search = user.searches.id(searchId);
+    if (!search) {
+      return res.status(404).json({ message: "Search not found" });
+    }
+
+    // Check if the candidate is already in the shortlist
+    const isAlreadyShortlisted = search.shortlistedCandidates.some(
+      (c) => c.name === candidate.name
+    );
+
+    if (isAlreadyShortlisted) {
+      // Remove candidate if already shortlisted
+      search.shortlistedCandidates = search.shortlistedCandidates.filter(
+        (c) => c.name !== candidate.name
+      );
+    } else {
+      // Add candidate to shortlist if not already present, including the owner's name
+      search.shortlistedCandidates.push({
+        ...candidate,
+        owner: `${user.firstName}`, // Owner name from user info
+      });
+    }
+
+    // Save the user with updated search
+    await user.save();
+    res.status(200).json({ message: "Shortlist updated successfully", search });
+  } catch (error) {
+    console.error("Error updating shortlist:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+export const getShortlistedCandidates = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await usermodel.findById(userId).select("searches");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const allShortlistedCandidates = user.searches.flatMap((search) =>
+      search.shortlistedCandidates.map((candidate) => {
+        const shortlistedDate = candidate.createdAt || search.createdAt;
+        
+        return {
+          ...candidate.toObject(),
+          searchName: search.searchName,
+          searchId: search._id,
+          shortlistedDate: shortlistedDate
+            ? new Date(shortlistedDate).toLocaleString("en-US", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })
+            : "N/A",
+        };
+      })
+    );
+
+    res.status(200).json({ shortlistedCandidates: allShortlistedCandidates });
+  } catch (error) {
+    console.error("Error fetching shortlisted candidates:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

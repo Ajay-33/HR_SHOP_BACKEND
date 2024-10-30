@@ -17,13 +17,44 @@ const searchSchema = new mongoose.Schema(
     ],
     shortlistedCandidates: [
       {
-        // candidateId: {
-        //   type: mongoose.Schema.Types.ObjectId,
-        //   ref: "Candidate", // Assuming you have a Candidate model
-        // },
         name: String,
-        position: String,
-        notes: String, // Any notes related to this candidate for the specific search
+        role: {
+          type: String,
+          default: "Unknown Role",
+        },
+        organization: {
+          type: String,
+          default: "Unknown Organization",
+        },
+        education: {
+          type: String,
+          default: "Not Specified",
+        },
+        location: {
+          type: String,
+          default: "Unknown Location",
+        },
+        status: {
+          type: String,
+          default: "Not Contacted",
+        },
+        owner: String,
+        linkedin: {
+          type: String,
+          default: null,
+        },
+        github: {
+          type: String,
+          default: null,
+        },
+        email: {
+          type: String,
+          default: null,
+        },
+        phone: {
+          type: String,
+          default: null,
+        },
       },
     ],
   },
