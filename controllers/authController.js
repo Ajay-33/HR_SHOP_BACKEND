@@ -24,6 +24,13 @@ export const registerController = async (req, res, next) => {
       lastName: lname,
       email,
       password,
+      searches: [
+        {
+          searchName: "Search 1",
+          previousSearchContent: [],
+          shortlistedCandidates: [],
+        },
+      ],
     });
 
     const token = user.createJWT();

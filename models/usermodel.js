@@ -3,6 +3,33 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
 
+const searchSchema = new mongoose.Schema(
+  {
+    searchName: {
+      type: String,
+      required: [true, "Search name is required"],
+      unique: true,
+    },
+    previousSearchContent: [
+      {
+        type: String,
+      },
+    ],
+    shortlistedCandidates: [
+      {
+        // candidateId: {
+        //   type: mongoose.Schema.Types.ObjectId,
+        //   ref: "Candidate", // Assuming you have a Candidate model
+        // },
+        name: String,
+        position: String,
+        notes: String, // Any notes related to this candidate for the specific search
+      },
+    ],
+  },
+  { timestamps: true }
+);
+
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -29,19 +56,17 @@ const userSchema = new mongoose.Schema(
             v
           );
         },
-        message: (props) =>
+        message:
           "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
       },
       select: false,
     },
-    // userType: {
-    //   type: String,
-    //   required: [true, "User type is required"],
-    // },
+    searches: [searchSchema], // Embedded array of search objects
   },
   { timestamps: true }
 );
 
+// Password hashing
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -49,13 +74,14 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// Password comparison method
 userSchema.methods.comparePassword = async function (userPassword) {
-  const isMatch = await bcrypt.compare(userPassword, this.password);
-  return isMatch;
+  return bcrypt.compare(userPassword, this.password);
 };
 
+// JWT creation method
 userSchema.methods.createJWT = function () {
-  return JWT.sign({ userId: this._id}, process.env.JWT_SECRET, {
+  return JWT.sign({ userId: this._id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
 };
